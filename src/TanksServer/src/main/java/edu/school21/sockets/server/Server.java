@@ -16,19 +16,22 @@ public class Server {
     public void start(int port) {
 
         try {
+            serverSocket = new ServerSocket(port);
             while (true) {
-                serverSocket = new ServerSocket(port);
                 Socket socket = serverSocket.accept();
+                System.out.println("New client wants to connect");
 
                 if (clients.size() <= 2) {
                     System.out.println("Adding client");
                     ServerClient serverClient = new ServerClient(socket);
                     clients.add(serverClient);
                     serverClient.start();
+                } else {
+                    System.out.println("No more space in list");
                 }
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println(e);
         }
     }
 }

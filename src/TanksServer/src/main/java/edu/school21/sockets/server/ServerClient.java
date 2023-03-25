@@ -24,15 +24,21 @@ public class ServerClient extends Thread {
     public void run() {
         System.out.println("Start listening new client " + socket.getInetAddress() + " " + socket.getPort());
         while (true) {
-            String input = reader.nextLine();
+            if (socket.isClosed()) break;
+
+            String input = "";
+            if (reader.hasNextLine())
+                input = reader.nextLine();
 
             System.out.println("From user: " + input);
 
             for (ServerClient client : Server.clients) {
                 if (client == this) continue;
-                writer.println(input);
+                client.writer.println(input);
             }
         }
+        reader.close();
+        writer.close();
     }
 
 
