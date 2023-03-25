@@ -16,11 +16,17 @@ public class Server {
     public void start(int port) {
 
         try {
-            serverSocket = new ServerSocket(port);
-            Socket socket = serverSocket.accept();
+            while (true) {
+                serverSocket = new ServerSocket(port);
+                Socket socket = serverSocket.accept();
 
-            if (clients.size() <= 2)
-                clients.add(new ServerClient(socket));
+                if (clients.size() <= 2) {
+                    System.out.println("Adding client");
+                    ServerClient serverClient = new ServerClient(socket);
+                    clients.add(serverClient);
+                    serverClient.start();
+                }
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
