@@ -1,6 +1,7 @@
 package edu.school21.sockets.app;
 
 import edu.school21.sockets.models.Tank;
+import edu.school21.sockets.utils.Field;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -14,10 +15,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class TanksApplication extends Application {
-    public static final int WIDTH = 1042;
-    public static final int HEIGHT = 1042;
-    public static final int TANK_WIDTH = 50;
-    public static final int TANK_HEIGHT = 60;
     public static Canvas canvas;
 
     public static Tank player;
@@ -26,22 +23,22 @@ public class TanksApplication extends Application {
     public static AnimationTimer animationTimer;
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
         stage.setTitle("Tanks!");
         Group root = new Group();
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        canvas = new Canvas(WIDTH, HEIGHT);
+        canvas = new Canvas(Field.WIDTH, Field.HEIGHT);
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.DARKRED);
 
-        Image background = new Image("field.jpg", WIDTH, HEIGHT, false, false);
+        Image background = new Image("field.jpg", Field.WIDTH, Field.HEIGHT, false, false);
         stage.show();
-        player = new Tank(new Image("BottomTank.png", TANK_WIDTH, TANK_HEIGHT, false, false),
-                20, HEIGHT - 20 - TANK_HEIGHT);
-        enemy = new Tank(new Image("TopTank.png", TANK_WIDTH, TANK_HEIGHT, false, false),
-                WIDTH - 20 - TANK_WIDTH, 20 );
+        player = new Tank(new Image("BottomTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
+                Field.BORDER_LEN, Field.HEIGHT - Field.BORDER_LEN - Field.TANK_HEIGHT);
+        enemy = new Tank(new Image("TopTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
+                Field.WIDTH - Field.BORDER_LEN - Field.TANK_WIDTH, Field.BORDER_LEN );
 
         scene.setOnKeyPressed(event -> {
             updteTank(player, event.getCode().toString());
@@ -53,7 +50,7 @@ public class TanksApplication extends Application {
             public void handle(long l) {
                 try {
                     //if hp == 0 game over
-                    gc.clearRect(0, 0, WIDTH, HEIGHT);
+                    gc.clearRect(0, 0, Field.WIDTH, Field.HEIGHT);
                     gc.drawImage(background, 0, 0);
                     player.draw(gc);
                     enemy.draw(gc);

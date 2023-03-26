@@ -1,13 +1,13 @@
 package edu.school21.sockets.models;
 
+import edu.school21.sockets.utils.Field;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 public class Tank {
-    private int SPEED = 5;
-    private Image image;
+    private final Image image;
     private int health = 100;
     private int x;
-    private int y;
+    private final int y;
 
     public Tank(Image image, int x, int y) {
         this.image = image;
@@ -18,17 +18,17 @@ public class Tank {
         gc.drawImage(image, x, y);
     }
     public void moveLeft() {
-        if (x - SPEED >= 20) {
-            x -= SPEED;
+        if (x - Field.SPEED >= Field.BORDER_LEN) {
+            x -= Field.SPEED;
         } else {
             x = 20;
         }
     }
     public void moveRight() {
-        if (x + SPEED <= 1042 - 20 - 50) {
-            x += SPEED;
+        if (x + Field.SPEED <= Field.WIDTH - Field.TANK_WIDTH - Field.BORDER_LEN) {
+            x += Field.SPEED;
         } else {
-            x = 1042 - 20;
+            x = Field.WIDTH - Field.TANK_WIDTH - Field.BORDER_LEN;
         }
     }
     public void shoot() {
