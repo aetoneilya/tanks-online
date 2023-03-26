@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Java_Bootcamp._Team01-1.iml" filepath="$PROJECT_DIR$/.idea/Java_Bootcamp._Team01-1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/TanksClient/TanksClient.iml" filepath="$PROJECT_DIR$/src/TanksClient/TanksClient.iml" />
     </modules>
   </component>
 </project>
