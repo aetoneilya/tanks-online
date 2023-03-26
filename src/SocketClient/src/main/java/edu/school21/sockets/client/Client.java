@@ -61,6 +61,8 @@ public class Client {
                         case "giveup":
                             tankController.giveUp();
                             break;
+                        case "ready":
+                            tankController.readyToStart();
                         default:
                             break;
                     }

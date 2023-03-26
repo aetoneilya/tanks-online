@@ -30,7 +30,7 @@ public class TanksApplication extends Application {
     public static GraphicsContext gc;
     public static AnimationTimer animationTimer;
     public static List<Bullet> bullets = new ArrayList<>();
-    public static Field.GS gameState = Field.GS.WAR;
+    public static Field.GS gameState = Field.GS.CONNECTION_WAITING;
     public static int bulletsShot = 0;
     public static int bulletsHit = 0;
     public static int bulletsShotEnemy = 0;
@@ -154,6 +154,8 @@ public class TanksApplication extends Application {
                 bulletsShot++;
                 client.sendMessage("shoot " + bulletsShot + " " + bulletsHit);
                 break;
+            case "readyToStart":
+                client.sendMessage("ready");
             default:
                 System.out.println(code);
         }
@@ -166,12 +168,13 @@ public class TanksApplication extends Application {
                 System.out.println("player hp = " + player.getHealth());
                 System.out.println("enemy hp = " + enemy.getHealth());
             }
-        } else {
-            while (gameState == Field.GS.CONNECTION_WAITING) {
-                sendToServer("readyToStart");
-                //get info from server
-            }
         }
+//        else {
+//            while (gameState == Field.GS.CONNECTION_WAITING) {
+//                sendToServer("readyToStart");
+//                //get info from server
+//            }
+//        }
     }
 
     public static void main(String[] args) {
@@ -183,7 +186,7 @@ public class TanksApplication extends Application {
                 Field.BORDER_LEN, Field.HEIGHT - Field.BORDER_LEN - Field.TANK_HEIGHT, bullets);
         enemy = new Tank(new Image("TopTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
                 Field.WIDTH - Field.BORDER_LEN - Field.TANK_WIDTH, Field.BORDER_LEN, bullets);
-        TankController tankController = new TankControllerImpl(enemy);
+        TankController tankController = new TankControllerImpl(enemy, () -> gameState = Field.GS.WAR);
         try {
             int port = Integer.parseInt(args[0].substring("--server-port=".length()));
             String ip = args[1].substring("--server-ip=".length());

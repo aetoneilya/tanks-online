@@ -3,14 +3,14 @@ package edu.school21.sockets.client;
 import edu.school21.sockets.models.Tank;
 import edu.school21.sockets.utils.Field;
 
-public class TankControllerImpl implements TankController{
+public class TankControllerImpl implements TankController {
     private Tank tank;
 
-    public TankControllerImpl() {
-    }
+    private Runnable readyCallback;
 
-    public TankControllerImpl(Tank tank) {
+    public TankControllerImpl(Tank tank, Runnable readyCallback) {
         this.tank = tank;
+        this.readyCallback = readyCallback;
     }
 
     @Override
@@ -31,5 +31,10 @@ public class TankControllerImpl implements TankController{
     @Override
     public void giveUp() {
         tank.setHealth(0);
+    }
+
+    @Override
+    public void readyToStart() {
+        readyCallback.run();
     }
 }

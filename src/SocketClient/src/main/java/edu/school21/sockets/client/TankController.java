@@ -5,4 +5,5 @@ public interface TankController {
     void right();
     void shoot();
     void giveUp();
+    void readyToStart();
 }
