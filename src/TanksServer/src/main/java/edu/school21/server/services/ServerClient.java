@@ -1,20 +1,28 @@
 package edu.school21.server.services;
 
+import edu.school21.server.models.RoundAnalytics;
+import edu.school21.server.repositories.RoundAnalyticsImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class ServerClient extends Thread {
+
     private final Socket socket;
+
     private final PrintWriter writer;
+
     private final Scanner reader;
 
-    public ServerClient(Socket socket) throws IOException {
-        this.socket = socket;
+    private RoundAnalyticsImpl roundAnalytics;
 
-        reader = new Scanner(socket.getInputStream());
-        writer = new PrintWriter(socket.getOutputStream(), true);
+    public ServerClient(Socket socket, RoundAnalyticsImpl roundAnalytics) throws IOException {
+        this.socket = socket;
+        this.roundAnalytics = roundAnalytics;
+        this.reader = new Scanner(socket.getInputStream());
+        this.writer = new PrintWriter(socket.getOutputStream(), true);
     }
 
     @Override
@@ -37,10 +45,23 @@ public class ServerClient extends Thread {
                 break;
             }
 
+            if (input.startsWith("shoot")) {
+                Scanner scanner = new Scanner(input);
+                scanner.next();
+                Integer shootsCount = scanner.nextInt();
+                Integer hitsCount = scanner.nextInt();
+                if (roundAnalytics.findByPlayerId(socket.getInetAddress().toString()) == null) {
+                    roundAnalytics.save(new RoundAnalytics(socket.getInetAddress().toString(), shootsCount, hitsCount));
+                } else {
+                    roundAnalytics.update(new RoundAnalytics(socket.getInetAddress().toString(), shootsCount, hitsCount));
+                }
+                scanner.close();
+            }
+
             System.out.println("From user: " + input);
 
             for (ServerClient client : Server.clients) {
-                if (client == this) continue;
+                if (client == this && !input.startsWith("ready")) continue;
                 client.writer.println(input);
             }
         }
