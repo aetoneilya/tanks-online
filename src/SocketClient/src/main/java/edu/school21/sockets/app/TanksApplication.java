@@ -30,7 +30,7 @@ public class TanksApplication extends Application {
     public static AnimationTimer animationTimer;
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
         stage.setTitle("Tanks!");
         Group root = new Group();
         Scene scene = new Scene(root);
@@ -54,13 +54,12 @@ public class TanksApplication extends Application {
             client = new Client("127.0.0.1", 9000, tankController);
             client.start();
         } catch (RuntimeException | IOException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
 
         scene.setOnKeyPressed(event -> {
             updteTank(player, event.getCode().toString());
             sendToServer(event.getCode().toString());
-            // send action info to server
         });
 
         animationTimer = new AnimationTimer() {
