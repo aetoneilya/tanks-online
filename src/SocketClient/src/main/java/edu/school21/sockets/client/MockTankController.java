@@ -1,6 +1,7 @@
 package edu.school21.sockets.client;
 
 import edu.school21.sockets.models.Tank;
+import edu.school21.sockets.utils.Field;
 
 public class MockTankController implements TankController{
     private Tank tank;
@@ -24,7 +25,7 @@ public class MockTankController implements TankController{
 
     @Override
     public void shoot() {
-        tank.shoot();
+        tank.shoot(Field.DOWN);
     }
 
     @Override
