@@ -30,6 +30,8 @@ public class TanksApplication extends Application {
     public static AnimationTimer animationTimer;
     public static List<Bullet> bullets = new ArrayList<>();
     public static Field.GS gameState = Field.GS.WAR;
+    public static int bulletsShot = 0;
+    public static int bulletsHit = 0;
 
     @Override
     public void start(Stage stage) {
@@ -43,6 +45,7 @@ public class TanksApplication extends Application {
         gc.setFill(Color.DARKRED);
 
         Image background = new Image("field.jpg", Field.WIDTH, Field.HEIGHT, false, false);
+        Image gameover = new Image("gameOver.jpeg", Field.WIDTH/2, Field.HEIGHT/2, false, false);
         stage.show();
         player = new Tank(new Image("BottomTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
                 Field.BORDER_LEN, Field.HEIGHT - Field.BORDER_LEN - Field.TANK_HEIGHT, bullets);
@@ -53,7 +56,7 @@ public class TanksApplication extends Application {
         TankController tankController = new TankControllerImpl(enemy);
 
         try {
-            client = new Client("127.0.0.1", 9000, tankController);
+            client = new Client("10.54.203.6", 9000, tankController);
             client.start();
         } catch (RuntimeException | IOException e) {
             System.out.println(e.getMessage());
@@ -74,12 +77,16 @@ public class TanksApplication extends Application {
                         gc.drawImage(background, 0, 0);
                         player.draw(gc);
                         enemy.draw(gc);
+                        gc.strokeText("HP=" + enemy.getHealth(), 5, 15);
+                        gc.strokeText("HP=" + player.getHealth(), 5, Field.WIDTH - 5);
                         if (!bullets.isEmpty()) {
                             for (int i = 0; i < bullets.size(); i++) {
                                 Bullet b = bullets.get(i);
                                 b.move();
                                 if (b.getDirection() == Field.UP) {
-                                    b.checkCollision(enemy);
+                                    if (b.checkCollision(enemy)) {
+                                        bulletsHit++;
+                                    }
                                 } else {
                                     b.checkCollision(player);
                                 }
@@ -91,7 +98,10 @@ public class TanksApplication extends Application {
                             }
                         }
                     } else if (gameState == Field.GS.GAME_OVER) {
-                        //print gameover
+                        gc.strokeText("You:", 5, Field.HEIGHT/4);
+                        gc.strokeText("Shots fired = " + bulletsShot, 5, Field.HEIGHT/4 + 15);
+                        gc.strokeText("Shots hit = " + bulletsHit, 5, Field.HEIGHT/4 + 30);
+                        gc.drawImage(gameover, Field.WIDTH/4, Field.HEIGHT/4);
                     }
 
                 } catch (Exception e) {
@@ -128,16 +138,19 @@ public class TanksApplication extends Application {
                 client.sendMessage("right");
                 break;
             case "SPACE":
-                client.sendMessage("shoot");
-                // shoot
+                bulletsShot++;
+                client.sendMessage("shoot " + bulletsShot + " " + bulletsHit);
                 break;
             default:
                 System.out.println(code);
         }
     }
     public void checkWarState() {
-        if (player.getHealth() <= 0 || enemy.getHealth() <= 0) {
+        if (gameState != Field.GS.GAME_OVER &&
+                (player.getHealth() <= 0 || enemy.getHealth() <= 0)) {
             gameState = Field.GS.GAME_OVER;
+            System.out.println("player hp = " + player.getHealth());
+            System.out.println("enemy hp = " + enemy.getHealth());
         }
     }
 

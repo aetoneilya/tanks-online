@@ -18,20 +18,22 @@ public class Bullet {
             this.y = tank.getY() + Field.TANK_HEIGHT - Field.BULLET_HEIGHT;
         }
     }
-    public void checkCollision(Tank tank) {
+    public boolean checkCollision(Tank tank) {
+        boolean res = false;
         if ((tank.getX() <= x) &&
                 ((tank.getX() + Field.TANK_WIDTH) >= (x + Field.BULLET_WIDTH))) {
             if ((direction == Field.UP && y <= tank.getY() + Field.TANK_HEIGHT) ||
-                    (direction == Field.DOWN && tank.getY() <= y)) {
+                    (direction == Field.DOWN && tank.getY() <= y + Field.BULLET_HEIGHT)) {
                 tank.setHealth(tank.getHealth() - Field.DAMAGE);
-                System.out.println(tank.getHealth());
                 if (direction == Field.UP) {
                     y = 0;
                 } else {
                     y = Field.HEIGHT;
                 }
+                res = true;
             }
         }
+        return res;
     }
     public void move() {
         this.y += direction * Field.BULLET_SPEED;

@@ -19,7 +19,7 @@ public class Client {
             reader = new Scanner(socket.getInputStream());
             writer = new PrintWriter(socket.getOutputStream(), true);
         } catch (IOException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
         }
     }
 
@@ -36,7 +36,7 @@ public class Client {
             writer.close();
             socket.close();
         } catch (IOException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
         }
         System.exit(0);
     }
@@ -47,22 +47,23 @@ public class Client {
         public void run() {
             while (true) {
                 String input = reader.nextLine();
+                if (input.startsWith("shoot")) {
+                    tankController.shoot();
+                } else {
 
-                switch (input){
-                    case "left":
-                        tankController.left();
-                        break;
-                    case "right":
-                        tankController.right();
-                        break;
-                    case "shoot":
-                        tankController.shoot();
-                        break;
-                    case "giveup":
-                        tankController.giveUp();
-                        break;
-                    default:
-                        break;
+                    switch (input) {
+                        case "left":
+                            tankController.left();
+                            break;
+                        case "right":
+                            tankController.right();
+                            break;
+                        case "giveup":
+                            tankController.giveUp();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
