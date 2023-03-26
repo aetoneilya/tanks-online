@@ -6,9 +6,9 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class ServerClient extends Thread {
-    private Socket socket;
-    private PrintWriter writer;
-    private Scanner reader;
+    private final Socket socket;
+    private final PrintWriter writer;
+    private final Scanner reader;
 
     public ServerClient(Socket socket) throws IOException {
         this.socket = socket;
@@ -30,10 +30,13 @@ public class ServerClient extends Thread {
                 input = reader.nextLine();
             }
 
-            if (input == null) {
+            if (input.equals("")) {
+                System.out.println("disconnected");
                 down();
+                Server.clients.remove(this);
                 break;
             }
+
             System.out.println("From user: " + input);
 
             for (ServerClient client : Server.clients) {
@@ -41,8 +44,7 @@ public class ServerClient extends Thread {
                 client.writer.println(input);
             }
         }
-        reader.close();
-        writer.close();
+
     }
 
 

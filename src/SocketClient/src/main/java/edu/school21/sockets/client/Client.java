@@ -1,8 +1,6 @@
-package client;
+package edu.school21.sockets.client;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
@@ -11,8 +9,10 @@ public class Client {
     private Socket socket;
     private PrintWriter writer;
     private Scanner reader;
+    private final TankController tankController;
 
-    public Client(String ip, int port) {
+    public Client(String ip, int port, TankController tankController) {
+        this.tankController = tankController;
 
         try {
             socket = new Socket(ip, port);
@@ -24,7 +24,6 @@ public class Client {
     }
 
     synchronized public void start() throws IOException {
-        System.out.println("Connecting to server...");
         ReadMsg readMsg = new ReadMsg();
         WriteMsg writeMsg = new WriteMsg();
         readMsg.start();
@@ -48,7 +47,23 @@ public class Client {
         public void run() {
             while (true) {
                 String input = reader.nextLine();
-                System.out.println("From server + " + input);
+
+                switch (input){
+                    case "left":
+                        tankController.left();
+                        break;
+                    case "right":
+                        tankController.right();
+                        break;
+                    case "shoot":
+                        tankController.shoot();
+                        break;
+                    case "giveup":
+                        tankController.giveUp();
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }
