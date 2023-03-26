@@ -2,6 +2,7 @@ package edu.school21.server.repositories;
 
 import edu.school21.server.models.RoundAnalytics;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RoundAnalyticsRepository {
@@ -13,5 +14,7 @@ public interface RoundAnalyticsRepository {
     void deleteAll();
 
     RoundAnalytics findByPlayerId(String playerId);
+
+    List<RoundAnalytics> findAll();
 
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
 import java.util.Scanner;
 
 public class ServerClient extends Thread {
@@ -61,6 +62,14 @@ public class ServerClient extends Thread {
             System.out.println("From user: " + input);
 
             for (ServerClient client : Server.clients) {
+                if (input.startsWith("finish")) {
+                    List<RoundAnalytics> roundAnalyticsList = roundAnalytics.findAll();
+                    for (RoundAnalytics el : roundAnalyticsList) {
+                        if (!socket.getInetAddress().toString().equals(el.getPlayerId())) {
+                            client.writer.println("finish " + el.getShotsCount() + " " + el.getHitsCount());
+                        }
+                    }
+                }
                 if (client == this && !input.startsWith("ready")) continue;
                 client.writer.println(input);
             }

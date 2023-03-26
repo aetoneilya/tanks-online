@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -62,6 +63,17 @@ public class RoundAnalyticsImpl implements RoundAnalyticsRepository {
         String sql = "select * from round_analytics where player_id = ?";
         try {
             return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(RoundAnalytics.class), playerId);
+        } catch (DataAccessException e) {
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public List<RoundAnalytics> findAll() {
+        String sql = "select * from round_analytics";
+        try {
+            return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(RoundAnalytics.class));
         } catch (DataAccessException e) {
             System.err.println(e.getMessage());
         }
