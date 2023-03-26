@@ -1,23 +1,34 @@
 package edu.school21.sockets.client;
 
+import edu.school21.sockets.models.Tank;
+
 public class MockTankController implements TankController{
+    private Tank tank;
+
+    public MockTankController() {
+    }
+
+    public MockTankController(Tank tank) {
+        this.tank = tank;
+    }
+
     @Override
     public void left() {
-        System.out.println("Enemy tank move left");
+        tank.moveLeft();;
     }
 
     @Override
     public void right() {
-        System.out.println("Enemy tank move right");
+        tank.moveRight();
     }
 
     @Override
     public void shoot() {
-        System.out.println("Enemy tank shoot");
+        tank.shoot();
     }
 
     @Override
     public void giveUp() {
-        System.out.println("Enemy tank gave up");
+        tank.setHealth(0);
     }
 }
