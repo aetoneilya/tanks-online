@@ -59,6 +59,7 @@ public class TanksApplication extends Application {
 
         scene.setOnKeyPressed(event -> {
             updteTank(player, event.getCode().toString());
+            sendToServer(event.getCode().toString());
             // send action info to server
         });
 
@@ -99,7 +100,7 @@ public class TanksApplication extends Application {
         }
     }
 
-    public void sendToServer(Tank tank, String code) {
+    public void sendToServer(String code) {
         switch (code) {
             case "LEFT":
                 client.sendMessage("left");
