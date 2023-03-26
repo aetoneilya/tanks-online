@@ -13,11 +13,13 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TanksApplication extends Application {
     public static Canvas canvas;
@@ -33,6 +35,8 @@ public class TanksApplication extends Application {
     public static int bulletsHit = 0;
     public static int bulletsShotEnemy = 0;
     public static int bulletsHitEnemy = 0;
+
+    public KeyCode lastkeyCode;
 
     @Override
     public void start(Stage stage) {
@@ -57,12 +61,16 @@ public class TanksApplication extends Application {
 
         scene.setOnKeyPressed(event -> {
             if (gameState == Field.GS.WAR) {
+                if (Objects.nonNull(lastkeyCode) && lastkeyCode.toString().equals("SPACE") && event.getCode().toString().equals("SPACE")) return;
+                lastkeyCode = event.getCode();
                 updteTank(player, event.getCode().toString());
                 sendToServer(event.getCode().toString());
             } else if (gameState == Field.GS.CONNECTION_WAITING) {
                 sendToServer("readyToStart");
             }
         });
+
+        scene.setOnKeyReleased(keyEvent -> lastkeyCode = null);
 
         animationTimer = new AnimationTimer() {
             @Override
@@ -101,9 +109,11 @@ public class TanksApplication extends Application {
                         gc.strokeText("Y o u : ", 5, Field.HEIGHT/4);
                         gc.strokeText("S h o t s  f i r e d  =  " + bulletsShot, 5, Field.HEIGHT/4 + 15);
                         gc.strokeText("S h o t s  h i t  =  " + bulletsHit, 5, Field.HEIGHT/4 + 30);
+                        gc.strokeText("S h o t s  m i s s e d  =  " + bulletsHitEnemy, 5, Field.HEIGHT/4 + 45);
                         gc.strokeText("E n e m y : ", Field.WIDTH/4*3 + 5, Field.HEIGHT/4);
                         gc.strokeText("S h o t s  f i r e d  =  " + bulletsShotEnemy, Field.WIDTH/4*3 + 5, Field.HEIGHT/4 + 15);
                         gc.strokeText("S h o t s  h i t  =  " + bulletsHitEnemy, Field.WIDTH/4*3 + 5, Field.HEIGHT/4 + 30);
+                        gc.strokeText("S h o t s  m i s s e d  =  " + bulletsHitEnemy, Field.WIDTH/4*3 + 5, Field.HEIGHT/4 + 45);
                         gc.drawImage(gameover, Field.WIDTH/4, Field.HEIGHT/4);
                     }
 
@@ -173,7 +183,7 @@ public class TanksApplication extends Application {
                 Field.BORDER_LEN, Field.HEIGHT - Field.BORDER_LEN - Field.TANK_HEIGHT, bullets);
         enemy = new Tank(new Image("TopTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
                 Field.WIDTH - Field.BORDER_LEN - Field.TANK_WIDTH, Field.BORDER_LEN, bullets);
-        TankController tankController = new TankControllerImpl();
+        TankController tankController = new TankControllerImpl(enemy);
         try {
             int port = Integer.parseInt(args[0].substring("--server-port=".length()));
             String ip = args[1].substring("--server-ip=".length());
