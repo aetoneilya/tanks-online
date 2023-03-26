@@ -156,6 +156,7 @@ public class TanksApplication extends Application {
                 break;
             case "readyToStart":
                 client.sendMessage("ready");
+                break;
             case "FINISH":
                 client.sendMessage("finish");
             default:
@@ -168,7 +169,7 @@ public class TanksApplication extends Application {
                     (player.getHealth() <= 0 || enemy.getHealth() <= 0)) {
                 gameState = Field.GS.GAME_OVER;
                 sendToServer("SPACE");
-                sendToServer("FINISH");
+//                sendToServer("FINISH");
                 System.out.println("player hp = " + player.getHealth());
                 System.out.println("enemy hp = " + enemy.getHealth());
             }
