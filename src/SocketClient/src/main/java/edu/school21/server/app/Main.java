@@ -1,8 +1,8 @@
-package edu.school21.sockets.app;
+package edu.school21.server.app;
 
-import edu.school21.sockets.client.Client;
-import edu.school21.sockets.client.MockTankController;
-import edu.school21.sockets.client.TankController;
+import edu.school21.server.client.Client;
+import edu.school21.server.client.MockTankController;
+import edu.school21.server.client.TankController;
 
 import java.io.IOException;
 

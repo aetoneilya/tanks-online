@@ -1,4 +1,4 @@
-package edu.school21.sockets.client;
+package edu.school21.server.client;
 
 public interface TankController {
     void left();

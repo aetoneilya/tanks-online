@@ -1,4 +1,4 @@
-package edu.school21.sockets.server;
+package edu.school21.server.services;
 
 
 import java.io.*;

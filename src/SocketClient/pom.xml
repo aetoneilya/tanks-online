@@ -23,7 +23,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>edu.school21.sockets.app.Main</mainClass>
+                            <mainClass>edu.school21.server.Application</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
