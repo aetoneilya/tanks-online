@@ -1,10 +1,7 @@
 package edu.school21.sockets.server;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -23,13 +20,20 @@ public class ServerClient extends Thread {
     @Override
     public void run() {
         System.out.println("Start listening new client " + socket.getInetAddress() + " " + socket.getPort());
+
+
         while (true) {
             if (socket.isClosed()) break;
 
             String input = "";
-            if (reader.hasNextLine())
+            if (reader.hasNextLine()) {
                 input = reader.nextLine();
+            }
 
+            if (input == null) {
+                down();
+                break;
+            }
             System.out.println("From user: " + input);
 
             for (ServerClient client : Server.clients) {

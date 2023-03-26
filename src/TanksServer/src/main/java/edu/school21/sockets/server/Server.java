@@ -21,7 +21,7 @@ public class Server {
                 Socket socket = serverSocket.accept();
                 System.out.println("New client wants to connect");
 
-                if (clients.size() <= 2) {
+                if (clients.size() < 2) {
                     System.out.println("Adding client");
                     ServerClient serverClient = new ServerClient(socket);
                     clients.add(serverClient);
