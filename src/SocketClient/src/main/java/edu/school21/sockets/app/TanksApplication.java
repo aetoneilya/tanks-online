@@ -30,7 +30,7 @@ public class TanksApplication extends Application {
     public static GraphicsContext gc;
     public static AnimationTimer animationTimer;
     public static List<Bullet> bullets = new ArrayList<>();
-    public static Field.GS gameState = Field.GS.WAR; // TODO
+    public static Field.GS gameState = Field.GS.CONNECTION_WAITING;
     public static int bulletsShot = 0;
     public static int bulletsHit = 0;
     public static Integer bulletsShotEnemy = 0;
