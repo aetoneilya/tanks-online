@@ -25,9 +25,9 @@ public class Client {
 
     synchronized public void start() throws IOException {
         ReadMsg readMsg = new ReadMsg();
-        WriteMsg writeMsg = new WriteMsg();
+//        WriteMsg writeMsg = new WriteMsg();
         readMsg.start();
-        writeMsg.start();
+//        writeMsg.start();
     }
 
     private void stop() {
@@ -68,14 +68,17 @@ public class Client {
         }
     }
 
-    public class WriteMsg extends Thread {
-        @Override
-        public void run() {
-            Scanner sc = new Scanner(System.in);
-            while (true) {
-                writer.println(sc.nextLine());
-            }
-        }
+    public void sendMessage(String message){
+        writer.println(message);
     }
+//    public class WriteMsg extends Thread {
+//        @Override
+//        public void run() {
+//            Scanner sc = new Scanner(System.in);
+//            while (true) {
+//                writer.println(sc.nextLine());
+//            }
+//        }
+//    }
 }
 

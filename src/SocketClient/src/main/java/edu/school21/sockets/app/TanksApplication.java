@@ -1,7 +1,9 @@
 package edu.school21.sockets.app;
 
+import edu.school21.sockets.client.Client;
+import edu.school21.sockets.client.MockTankController;
+import edu.school21.sockets.client.TankController;
 import edu.school21.sockets.models.Tank;
-import edu.school21.sockets.utils.Field;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -15,7 +17,12 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class TanksApplication extends Application {
+    public static final int WIDTH = 1042;
+    public static final int HEIGHT = 1042;
+    public static final int TANK_WIDTH = 50;
+    public static final int TANK_HEIGHT = 60;
     public static Canvas canvas;
+    Client client;
 
     public static Tank player;
     public static Tank enemy;
@@ -23,25 +30,36 @@ public class TanksApplication extends Application {
     public static AnimationTimer animationTimer;
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException {
         stage.setTitle("Tanks!");
         Group root = new Group();
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        canvas = new Canvas(Field.WIDTH, Field.HEIGHT);
+        canvas = new Canvas(WIDTH, HEIGHT);
         root.getChildren().add(canvas);
         gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.DARKRED);
 
-        Image background = new Image("field.jpg", Field.WIDTH, Field.HEIGHT, false, false);
+        Image background = new Image("field.jpg", WIDTH, HEIGHT, false, false);
         stage.show();
-        player = new Tank(new Image("BottomTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
-                Field.BORDER_LEN, Field.HEIGHT - Field.BORDER_LEN - Field.TANK_HEIGHT);
-        enemy = new Tank(new Image("TopTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
-                Field.WIDTH - Field.BORDER_LEN - Field.TANK_WIDTH, Field.BORDER_LEN );
+        player = new Tank(new Image("BottomTank.png", TANK_WIDTH, TANK_HEIGHT, false, false),
+                20, HEIGHT - 20 - TANK_HEIGHT);
+        enemy = new Tank(new Image("TopTank.png", TANK_WIDTH, TANK_HEIGHT, false, false),
+                WIDTH - 20 - TANK_WIDTH, 20);
+
+        //client
+        TankController tankController = new MockTankController(enemy);
+
+        try {
+            client = new Client("127.0.0.1", 9000, tankController);
+            client.start();
+        } catch (RuntimeException | IOException e) {
+            System.out.println(e);
+        }
 
         scene.setOnKeyPressed(event -> {
             updteTank(player, event.getCode().toString());
+            sendToServer(event.getCode().toString());
             // send action info to server
         });
 
@@ -50,7 +68,7 @@ public class TanksApplication extends Application {
             public void handle(long l) {
                 try {
                     //if hp == 0 game over
-                    gc.clearRect(0, 0, Field.WIDTH, Field.HEIGHT);
+                    gc.clearRect(0, 0, WIDTH, HEIGHT);
                     gc.drawImage(background, 0, 0);
                     player.draw(gc);
                     enemy.draw(gc);
@@ -62,6 +80,7 @@ public class TanksApplication extends Application {
         animationTimer.start();
 
     }
+
     public void updteTank(Tank tank, String code) {
         switch (code) {
             case "LEFT":
@@ -74,6 +93,23 @@ public class TanksApplication extends Application {
                 break;
             case "SPACE":
                 System.out.println("Shoot");
+                // shoot
+                break;
+            default:
+                System.out.println(code);
+        }
+    }
+
+    public void sendToServer(String code) {
+        switch (code) {
+            case "LEFT":
+                client.sendMessage("left");
+                break;
+            case "RIGHT":
+                client.sendMessage("right");
+                break;
+            case "SPACE":
+                System.out.println("shoot");
                 // shoot
                 break;
             default:

@@ -14,12 +14,12 @@ public class MockTankController implements TankController{
 
     @Override
     public void left() {
-        tank.moveLeft();;
+        tank.moveRight();
     }
 
     @Override
     public void right() {
-        tank.moveRight();
+        tank.moveLeft();
     }
 
     @Override
