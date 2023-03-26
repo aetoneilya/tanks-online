@@ -16,13 +16,12 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TanksApplication extends Application {
     public static Canvas canvas;
-    Client client;
+    public static Client client;
 
     public static Tank player;
     public static Tank enemy;
@@ -32,6 +31,8 @@ public class TanksApplication extends Application {
     public static Field.GS gameState = Field.GS.WAR;
     public static int bulletsShot = 0;
     public static int bulletsHit = 0;
+    public static int bulletsShotEnemy = 0;
+    public static int bulletsHitEnemy = 0;
 
     @Override
     public void start(Stage stage) {
@@ -47,24 +48,20 @@ public class TanksApplication extends Application {
         Image background = new Image("field.jpg", Field.WIDTH, Field.HEIGHT, false, false);
         Image gameover = new Image("gameOver.jpeg", Field.WIDTH/2, Field.HEIGHT/2, false, false);
         stage.show();
-        player = new Tank(new Image("BottomTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
-                Field.BORDER_LEN, Field.HEIGHT - Field.BORDER_LEN - Field.TANK_HEIGHT, bullets);
-        enemy = new Tank(new Image("TopTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
-                Field.WIDTH - Field.BORDER_LEN - Field.TANK_WIDTH, Field.BORDER_LEN, bullets);
-
-        //client
-        TankController tankController = new TankControllerImpl(enemy);
 
         try {
-            client = new Client("10.54.203.6", 9000, tankController);
             client.start();
-        } catch (RuntimeException | IOException e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
         scene.setOnKeyPressed(event -> {
-            updteTank(player, event.getCode().toString());
-            sendToServer(event.getCode().toString());
+            if (gameState == Field.GS.WAR) {
+                updteTank(player, event.getCode().toString());
+                sendToServer(event.getCode().toString());
+            } else if (gameState == Field.GS.CONNECTION_WAITING) {
+                sendToServer("readyToStart");
+            }
         });
 
         animationTimer = new AnimationTimer() {
@@ -72,6 +69,9 @@ public class TanksApplication extends Application {
             public void handle(long l) {
                 try {
                     checkWarState();
+                    if (gameState == Field.GS.CONNECTION_WAITING) {
+                        gc.strokeText("Waiting for opponent!", Field.WIDTH/4, Field.HEIGHT/4);
+                    }
                     if (gameState == Field.GS.WAR) {
                         gc.clearRect(0, 0, Field.WIDTH, Field.HEIGHT);
                         gc.drawImage(background, 0, 0);
@@ -98,9 +98,12 @@ public class TanksApplication extends Application {
                             }
                         }
                     } else if (gameState == Field.GS.GAME_OVER) {
-                        gc.strokeText("You:", 5, Field.HEIGHT/4);
-                        gc.strokeText("Shots fired = " + bulletsShot, 5, Field.HEIGHT/4 + 15);
-                        gc.strokeText("Shots hit = " + bulletsHit, 5, Field.HEIGHT/4 + 30);
+                        gc.strokeText("Y o u : ", 5, Field.HEIGHT/4);
+                        gc.strokeText("S h o t s  f i r e d  =  " + bulletsShot, 5, Field.HEIGHT/4 + 15);
+                        gc.strokeText("S h o t s  h i t  =  " + bulletsHit, 5, Field.HEIGHT/4 + 30);
+                        gc.strokeText("E n e m y : ", Field.WIDTH/4*3 + 5, Field.HEIGHT/4);
+                        gc.strokeText("S h o t s  f i r e d  =  " + bulletsShotEnemy, Field.WIDTH/4*3 + 5, Field.HEIGHT/4 + 15);
+                        gc.strokeText("S h o t s  h i t  =  " + bulletsHitEnemy, Field.WIDTH/4*3 + 5, Field.HEIGHT/4 + 30);
                         gc.drawImage(gameover, Field.WIDTH/4, Field.HEIGHT/4);
                     }
 
@@ -146,15 +149,38 @@ public class TanksApplication extends Application {
         }
     }
     public void checkWarState() {
-        if (gameState != Field.GS.GAME_OVER &&
-                (player.getHealth() <= 0 || enemy.getHealth() <= 0)) {
-            gameState = Field.GS.GAME_OVER;
-            System.out.println("player hp = " + player.getHealth());
-            System.out.println("enemy hp = " + enemy.getHealth());
+        if (gameState != Field.GS.CONNECTION_WAITING) {
+            if (gameState != Field.GS.GAME_OVER &&
+                    (player.getHealth() <= 0 || enemy.getHealth() <= 0)) {
+                gameState = Field.GS.GAME_OVER;
+                System.out.println("player hp = " + player.getHealth());
+                System.out.println("enemy hp = " + enemy.getHealth());
+            }
+        } else {
+            while (gameState == Field.GS.CONNECTION_WAITING) {
+                sendToServer("readyToStart");
+                //get info from server
+            }
         }
     }
 
     public static void main(String[] args) {
+        if (args.length != 2 || !args[0].startsWith("--server-port=") || !args[1].startsWith("--server-ip=")){
+            System.err.println("Enter port and ip using --server-port=? --server-ip=?");
+            System.exit(1);
+        }
+        player = new Tank(new Image("BottomTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
+                Field.BORDER_LEN, Field.HEIGHT - Field.BORDER_LEN - Field.TANK_HEIGHT, bullets);
+        enemy = new Tank(new Image("TopTank.png", Field.TANK_WIDTH, Field.TANK_HEIGHT, false, false),
+                Field.WIDTH - Field.BORDER_LEN - Field.TANK_WIDTH, Field.BORDER_LEN, bullets);
+        TankController tankController = new TankControllerImpl();
+        try {
+            int port = Integer.parseInt(args[0].substring("--server-port=".length()));
+            String ip = args[1].substring("--server-ip=".length());
+            client = new Client(ip, port, tankController);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
         launch();
     }
 }
