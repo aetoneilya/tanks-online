@@ -1,5 +1,8 @@
 package edu.school21.sockets.app;
 
+import edu.school21.sockets.client.Client;
+import edu.school21.sockets.client.MockTankController;
+import edu.school21.sockets.client.TankController;
 import edu.school21.sockets.models.Tank;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -19,6 +22,7 @@ public class TanksApplication extends Application {
     public static final int TANK_WIDTH = 50;
     public static final int TANK_HEIGHT = 60;
     public static Canvas canvas;
+    Client client;
 
     public static Tank player;
     public static Tank enemy;
@@ -41,7 +45,17 @@ public class TanksApplication extends Application {
         player = new Tank(new Image("BottomTank.png", TANK_WIDTH, TANK_HEIGHT, false, false),
                 20, HEIGHT - 20 - TANK_HEIGHT);
         enemy = new Tank(new Image("TopTank.png", TANK_WIDTH, TANK_HEIGHT, false, false),
-                WIDTH - 20 - TANK_WIDTH, 20 );
+                WIDTH - 20 - TANK_WIDTH, 20);
+
+        //client
+        TankController tankController = new MockTankController(enemy);
+
+        try {
+            client = new Client("127.0.0.1", 9000, tankController);
+            client.start();
+        } catch (RuntimeException | IOException e) {
+            System.out.println(e);
+        }
 
         scene.setOnKeyPressed(event -> {
             updteTank(player, event.getCode().toString());
@@ -65,6 +79,7 @@ public class TanksApplication extends Application {
         animationTimer.start();
 
     }
+
     public void updteTank(Tank tank, String code) {
         switch (code) {
             case "LEFT":
@@ -77,6 +92,23 @@ public class TanksApplication extends Application {
                 break;
             case "SPACE":
                 System.out.println("Shoot");
+                // shoot
+                break;
+            default:
+                System.out.println(code);
+        }
+    }
+
+    public void sendToServer(Tank tank, String code) {
+        switch (code) {
+            case "LEFT":
+                client.sendMessage("left");
+                break;
+            case "RIGHT":
+                client.sendMessage("right");
+                break;
+            case "SPACE":
+                System.out.println("shoot");
                 // shoot
                 break;
             default:
