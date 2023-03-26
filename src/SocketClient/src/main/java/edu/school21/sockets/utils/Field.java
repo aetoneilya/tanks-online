@@ -13,5 +13,8 @@ public class Field {
     public static final int DOWN = 1;
     public static final int BULLET_WIDTH = 6;
     public static final int BULLET_HEIGHT = 30;
+    public enum GS{
+        WAR, GAME_OVER, CONNECTION_WAITING
+    }
 
 }

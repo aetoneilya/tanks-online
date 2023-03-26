@@ -3,13 +3,13 @@ package edu.school21.sockets.client;
 import edu.school21.sockets.models.Tank;
 import edu.school21.sockets.utils.Field;
 
-public class MockTankController implements TankController{
+public class TankControllerImpl implements TankController{
     private Tank tank;
 
-    public MockTankController() {
+    public TankControllerImpl() {
     }
 
-    public MockTankController(Tank tank) {
+    public TankControllerImpl(Tank tank) {
         this.tank = tank;
     }
 

@@ -1,7 +1,7 @@
 package edu.school21.sockets.app;
 
 import edu.school21.sockets.client.Client;
-import edu.school21.sockets.client.MockTankController;
+import edu.school21.sockets.client.TankControllerImpl;
 import edu.school21.sockets.client.TankController;
 import edu.school21.sockets.models.Bullet;
 import edu.school21.sockets.models.Tank;
@@ -29,6 +29,7 @@ public class TanksApplication extends Application {
     public static GraphicsContext gc;
     public static AnimationTimer animationTimer;
     public static List<Bullet> bullets = new ArrayList<>();
+    public static Field.GS gameState = Field.GS.WAR;
 
     @Override
     public void start(Stage stage) {
@@ -49,7 +50,7 @@ public class TanksApplication extends Application {
                 Field.WIDTH - Field.BORDER_LEN - Field.TANK_WIDTH, Field.BORDER_LEN, bullets);
 
         //client
-        TankController tankController = new MockTankController(enemy);
+        TankController tankController = new TankControllerImpl(enemy);
 
         try {
             client = new Client("127.0.0.1", 9000, tankController);
@@ -67,26 +68,30 @@ public class TanksApplication extends Application {
             @Override
             public void handle(long l) {
                 try {
-                    //if hp == 0 game over
-                    gc.clearRect(0, 0, Field.WIDTH, Field.HEIGHT);
-                    gc.drawImage(background, 0, 0);
-                    player.draw(gc);
-                    enemy.draw(gc);
-                    if (!bullets.isEmpty()) {
-                        for (int i = 0; i < bullets.size(); i++) {
-                            Bullet b = bullets.get(i);
-                            b.move();
-                            if (b.getDirection() == Field.UP) {
-                                b.checkCollision(enemy);
-                            } else {
-                                b.checkCollision(player);
-                            }
-                            if (b.isOut()) {
-                                bullets.remove(b);
-                            } else {
-                                b.draw(gc);
+                    checkWarState();
+                    if (gameState == Field.GS.WAR) {
+                        gc.clearRect(0, 0, Field.WIDTH, Field.HEIGHT);
+                        gc.drawImage(background, 0, 0);
+                        player.draw(gc);
+                        enemy.draw(gc);
+                        if (!bullets.isEmpty()) {
+                            for (int i = 0; i < bullets.size(); i++) {
+                                Bullet b = bullets.get(i);
+                                b.move();
+                                if (b.getDirection() == Field.UP) {
+                                    b.checkCollision(enemy);
+                                } else {
+                                    b.checkCollision(player);
+                                }
+                                if (b.isOut()) {
+                                    bullets.remove(b);
+                                } else {
+                                    b.draw(gc);
+                                }
                             }
                         }
+                    } else if (gameState == Field.GS.GAME_OVER) {
+                        //print gameover
                     }
 
                 } catch (Exception e) {
@@ -101,15 +106,12 @@ public class TanksApplication extends Application {
     public void updteTank(Tank tank, String code) {
         switch (code) {
             case "LEFT":
-                System.out.println("Left");
                 tank.moveLeft();
                 break;
             case "RIGHT":
-                System.out.println("Right");
                 tank.moveRight();
                 break;
             case "SPACE":
-                System.out.println("Shoot");
                 player.shoot(Field.UP);
                 break;
             default:
@@ -126,11 +128,16 @@ public class TanksApplication extends Application {
                 client.sendMessage("right");
                 break;
             case "SPACE":
-                System.out.println("shoot");
+                client.sendMessage("shoot");
                 // shoot
                 break;
             default:
                 System.out.println(code);
+        }
+    }
+    public void checkWarState() {
+        if (player.getHealth() <= 0 || enemy.getHealth() <= 0) {
+            gameState = Field.GS.GAME_OVER;
         }
     }
 
